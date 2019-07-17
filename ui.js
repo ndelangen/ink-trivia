@@ -2,52 +2,76 @@
 const React = require('react');
 const {Text, Color, Box} = require('ink');
 
-class Counter extends React.Component {
-	constructor(props) {
-		super(props);
+const ScoreBoard = ({ scores }) => {
+	return (
+		<Box marginBottom={1} flexDirection="row">
+			{Object.entries(scores).reduce((acc, [name, score], i, l) => {
+				const isLast = i === l.length -1;
+				const isFirst = i === 0;
 
-		this.state = {
-			i: 0
-		};
-	}
+				const style = Object.assign(
+					{},
+					isLast || isFirst ? {flexGrow: 1} : {},
+					isFirst ? { justifyContent: 'flex-end', alignItems: 'flex-end' } : {}
+				);
 
-	render() {
-		return (
-			<React.Fragment>
-				{this.state.i}
-			</React.Fragment>
-		);
-	}
+				const element = (
+					<Box key={name} {...style}>
+						<Box flexDirection="column" justifyContent="center" alignItems="center">
+							<Text><Color {...{[name]: true}}>{name} team</Color></Text>
+							<Text>{score}</Text>
+						</Box>
+					</Box>
+				);
+				if(acc){
+					return acc.concat([
+						<Box key={name+ '-sep'}> - VS - </Box>,
+						element
+					])
+				}
+				return [].concat(element)
+			}, null)}
+		</Box>
+	)
+}
 
-	componentDidMount() {
-		this.timer = setInterval(() => {
-			this.setState({
-				i: this.state.i + 1
-			});
-		}, 100);
-	}
+const GameTimer = () => (
+	<Box justifyContent="center" alignItems="center">
+		<Box flexGrow={1} />
+		<Text>------- time remaining: <Counter /> -------</Text>
+		<Box flexGrow={1} />
+	</Box>
+)
 
-	componentWillUnmount() {
-		clearInterval(this.timer);
-	}
+const Counter = ({ startCount = 6000, interval = 10}) => {
+	const [count, setCount] = React.useState(startCount);
+	const done = count === 0;
+	
+	const ref = React.useRef(count);
+  ref.current = count;
+	
+	React.useEffect(() => {
+		let timer;
+		if (!done) {
+			timer = setInterval(() => { setCount(ref.current - 1)}, interval);
+		}
+		return () => {
+			if (timer) {
+				clearInterval(timer);
+			}
+		}
+	}, [interval, done]);
+
+	return (
+		<Color blue>
+			{(count / 100).toFixed(2)}
+		</Color>
+	);
 }
 const App = () => (
-	<Box marginBottom={1} flexDirection="row">
-		<Box flexGrow={1} justifyContent="flex-end" alignItems="flex-end">
-			<Box flexDirection="column" justifyContent="center" alignItems="center">
-				<Text><Color green>Green team</Color></Text>
-				<Counter />
-			</Box>
-		</Box>
-		
-		<Box> - VS - </Box>
-		
-		<Box flexGrow={1}>
-			<Box flexDirection="column" justifyContent="center" alignItems="center">
-				<Text><Color red>Red team</Color></Text>
-				<Counter />
-			</Box>
-		</Box>
+	<Box marginBottom={1} flexDirection="column">
+		<ScoreBoard scores={{red: 0, green: 1}} />
+		<GameTimer />
 	</Box>
 );
 
