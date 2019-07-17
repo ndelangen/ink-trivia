@@ -23,7 +23,8 @@ const ScoreBoard = ({ scores }) => {
 						</Box>
 					</Box>
 				);
-				if(acc){
+
+				if (acc) {
 					return acc.concat([
 						<Box key={name+ '-sep'}> - VS - </Box>,
 						element
@@ -35,15 +36,23 @@ const ScoreBoard = ({ scores }) => {
 	)
 }
 
-const GameTimer = () => (
+const GameTimer = ({ timeRemaining }) => (
 	<Box justifyContent="center" alignItems="center">
 		<Box flexGrow={1} />
-		<Text>------- time remaining: <Counter /> -------</Text>
+		<Text>------- time remaining: <Color blue>{(timeRemaining / 10).toFixed(1)}</Color> -------</Text>
 		<Box flexGrow={1} />
 	</Box>
-)
+);
 
-const Counter = ({ startCount = 6000, interval = 10}) => {
+const ActiveRound = ({ team, round }) => (
+	<Box marginBottom={1} justifyContent="center" alignItems="center">
+		<Box flexGrow={1} />
+		<Text>Round {round + 1}, Current player is <Color {...{[team]: true}}>{team}</Color></Text>
+		<Box flexGrow={1} />
+	</Box>
+);
+
+const useCount = (startCount = 60, gameSpeed = 100) => {
 	const [count, setCount] = React.useState(startCount);
 	const done = count === 0;
 	
@@ -53,26 +62,68 @@ const Counter = ({ startCount = 6000, interval = 10}) => {
 	React.useEffect(() => {
 		let timer;
 		if (!done) {
-			timer = setInterval(() => { setCount(ref.current - 1)}, interval);
+			timer = setInterval(() => { setCount(ref.current - 1)}, gameSpeed);
 		}
 		return () => {
 			if (timer) {
 				clearInterval(timer);
 			}
 		}
-	}, [interval, done]);
+	}, [gameSpeed, done]);
+
+	return [count, setCount];
+}
+
+const teams = ['red', 'green'];
+
+const useAppState = (teams) => {
+	const [count, setCount] = useCount();
+	const [state, setState] = React.useState({ 
+		team: teams[0],
+		round: 0,
+		scores: teams.reduce((acc, i) => Object.assign(acc, {[i]: 0}), {}),
+		question: undefined,
+	});
+
+	const next = (amount) => {
+		setCount(600);
+		setState({
+			team: teams.reduce((acc, t, i, l) => {
+				if (acc) {
+					return acc;
+				}
+				if (state.team === t && i < l.length -1) {
+					return l[i+1];
+				}
+				if (state.team === t && i === l.length -1) {
+					return l[0];
+				}
+				}, false),
+			round: state.round = 1,
+			scores: {
+				...state.scores,
+				[state.team]: state.scores[state.team] + amount,
+			},
+		})
+	}
+
+	if(count === 0) {
+		next(0);
+	}
+
+	return [state, count, next]
+}
+
+const App = () => {
+	const [state, count, next] = useAppState(teams);
 
 	return (
-		<Color blue>
-			{(count / 100).toFixed(2)}
-		</Color>
+		<Box marginBottom={1} flexDirection="column">
+			<ScoreBoard scores={state.scores} />
+			<GameTimer timeRemaining={count} />
+			<ActiveRound round={state.round} team={state.team} />
+		</Box>
 	);
 }
-const App = () => (
-	<Box marginBottom={1} flexDirection="column">
-		<ScoreBoard scores={{red: 0, green: 1}} />
-		<GameTimer />
-	</Box>
-);
 
 module.exports = App;
