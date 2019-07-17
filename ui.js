@@ -1,10 +1,10 @@
 'use strict';
 const React = require('react');
-const {Color, Box} = require('ink');
+const {Text, Color, Box} = require('ink');
 
 class Counter extends React.Component {
-	constructor() {
-		super();
+	constructor(props) {
+		super(props);
 
 		this.state = {
 			i: 0
@@ -14,7 +14,7 @@ class Counter extends React.Component {
 	render() {
 		return (
 			<React.Fragment>
-				{this.state.i} tests passed
+				{this.state.i}
 			</React.Fragment>
 		);
 	}
@@ -33,13 +33,21 @@ class Counter extends React.Component {
 }
 const App = () => (
 	<Box marginBottom={1} flexDirection="row">
-		<Color green>
-			<Counter />
-		</Color>
-		<Box flexGrow={1}></Box>
-		<Color red>
-			<Counter />
-		</Color>
+		<Box flexGrow={1} justifyContent="flex-end" alignItems="flex-end">
+			<Box flexDirection="column" justifyContent="center" alignItems="center">
+				<Text><Color green>Green team</Color></Text>
+				<Counter />
+			</Box>
+		</Box>
+		
+		<Box> - VS - </Box>
+		
+		<Box flexGrow={1}>
+			<Box flexDirection="column" justifyContent="center" alignItems="center">
+				<Text><Color red>Red team</Color></Text>
+				<Counter />
+			</Box>
+		</Box>
 	</Box>
 );
 
