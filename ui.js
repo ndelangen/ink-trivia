@@ -13,9 +13,9 @@ class Counter extends React.Component {
 
 	render() {
 		return (
-			<Color green>
+			<React.Fragment>
 				{this.state.i} tests passed
-			</Color>
+			</React.Fragment>
 		);
 	}
 
@@ -32,8 +32,14 @@ class Counter extends React.Component {
 	}
 }
 const App = () => (
-	<Box marginBottom={1} flexDirection="column">
-		<Counter />
+	<Box marginBottom={1} flexDirection="row">
+		<Color green>
+			<Counter />
+		</Color>
+		<Box flexGrow={1}></Box>
+		<Color red>
+			<Counter />
+		</Color>
 	</Box>
 );
 
