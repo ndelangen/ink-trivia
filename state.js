@@ -49,7 +49,7 @@ const useAppState = (teams) => {
 		scores: teams.reduce((acc, i) => Object.assign(acc, {[i]: 0}), {}),
   });
   
-	const next = (amount) => {
+	const next = (wasCorrect) => {
 		setCount(600);
 		setState({
 			team: teams.reduce((acc, t, i, l) => {
@@ -63,16 +63,16 @@ const useAppState = (teams) => {
 					return l[0];
 				}
 				}, false),
-			round: state.round = 1,
-			scores: {
+			round: state.round + 1,
+			scores: wasCorrect ? {
 				...state.scores,
-				[state.team]: state.scores[state.team] + amount,
-      },
+				[state.team]: state.scores[state.team] + count,
+      } : state.scores,
 		})
 	}
 
 	if(count === 0) {
-		next(0);
+		next(false);
   }
   
 	return [state, questions, (questions ? count : 0), next]

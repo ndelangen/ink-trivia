@@ -1,8 +1,10 @@
 'use strict';
 const React = require('react');
 const {Text, Color, Box} = require('ink');
-
+const {default: SelectInput} = require('ink-select-input');
 const { useAppState } = require('./state');
+const arrayShuffle = require('array-shuffle');
+const {feed: decode} = require('html-entity-decoder')
 
 const ScoreBoard = ({ scores }) => {
 	return (
@@ -54,21 +56,39 @@ const ActiveRound = ({ team, round }) => (
 	</Box>
 );
 
+const Question = ({ next, question }) => {
+	const handleSelect = item => {
+		next(item.value === true);
+	};
+
+	const items = React.useMemo(() => arrayShuffle(
+		[
+			{ label: decode(question.correct_answer), value: true }
+		].concat(
+			question.incorrect_answers.map((item, i) => ({ label: decode(item), value: i }))
+		)
+	), [question.question]);
+
+	return <SelectInput items={items} onSelect={handleSelect}/>
+};
+
 const App = ({ teams }) => {
 	const [state, questions, count, next] = useAppState(teams);
 
-	return (
+	return state.round === 9 ? (
+		<Box marginBottom={1} flexDirection="column">
+			<ScoreBoard scores={state.scores} />
+			<Text>CONGRATULATIONS</Text>
+		</Box>
+	) : (
 		<Box marginBottom={1} flexDirection="column">
 			<ScoreBoard scores={state.scores} />
 			<GameTimer timeRemaining={count} />
 			<ActiveRound round={state.round} team={state.team} />
 			{questions ? (
 				<Box flexDirection="column" marginBottom={1} justifyContent="center" alignItems="center">
-					<Box>{questions[state.round].question}</Box>
-					<Box>{questions[state.round].correct_answer}</Box>
-					{questions[state.round].incorrect_answers.map(i => (
-						<Box>{i}</Box>
-					))}
+					<Box>{decode(questions[state.round].question)}</Box>
+					<Question question={questions[state.round]} next={next} />
 				</Box>
 			) : null}
 		</Box>
