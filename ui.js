@@ -1,20 +1,40 @@
 'use strict';
 const React = require('react');
-const PropTypes = require('prop-types');
-const {Text, Color} = require('ink');
+const {Color, Box} = require('ink');
 
-const App = ({name}) => (
-	<Text>
-		Hello, <Color green>{name}</Color>
-	</Text>
+class Counter extends React.Component {
+	constructor() {
+		super();
+
+		this.state = {
+			i: 0
+		};
+	}
+
+	render() {
+		return (
+			<Color green>
+				{this.state.i} tests passed
+			</Color>
+		);
+	}
+
+	componentDidMount() {
+		this.timer = setInterval(() => {
+			this.setState({
+				i: this.state.i + 1
+			});
+		}, 100);
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.timer);
+	}
+}
+const App = () => (
+	<Box marginBottom={1} flexDirection="column">
+		<Counter />
+	</Box>
 );
-
-App.propTypes = {
-	name: PropTypes.string
-};
-
-App.defaultProps = {
-	name: 'Stranger'
-};
 
 module.exports = App;
