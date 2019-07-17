@@ -18,7 +18,8 @@
 		"ink": "^2.3.0",
 		"meow": "^5.0.0",
 		"prop-types": "^15.7.2",
-		"react": "^16.8.6"
+		"react": "^16.8.6",
+		"request": "^2.88.0"
 	},
 	"devDependencies": {
 		"@babel/preset-react": "^7.0.0",

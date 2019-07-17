@@ -2,6 +2,8 @@
 const React = require('react');
 const {Text, Color, Box} = require('ink');
 
+const { useAppState } = require('./state');
+
 const ScoreBoard = ({ scores }) => {
 	return (
 		<Box marginBottom={1} flexDirection="row">
@@ -52,76 +54,23 @@ const ActiveRound = ({ team, round }) => (
 	</Box>
 );
 
-const useCount = (startCount = 60, gameSpeed = 100) => {
-	const [count, setCount] = React.useState(startCount);
-	const done = count === 0;
-	
-	const ref = React.useRef(count);
-  ref.current = count;
-	
-	React.useEffect(() => {
-		let timer;
-		if (!done) {
-			timer = setInterval(() => { setCount(ref.current - 1)}, gameSpeed);
-		}
-		return () => {
-			if (timer) {
-				clearInterval(timer);
-			}
-		}
-	}, [gameSpeed, done]);
-
-	return [count, setCount];
-}
-
-const teams = ['red', 'green'];
-
-const useAppState = (teams) => {
-	const [count, setCount] = useCount();
-	const [state, setState] = React.useState({ 
-		team: teams[0],
-		round: 0,
-		scores: teams.reduce((acc, i) => Object.assign(acc, {[i]: 0}), {}),
-		question: undefined,
-	});
-
-	const next = (amount) => {
-		setCount(600);
-		setState({
-			team: teams.reduce((acc, t, i, l) => {
-				if (acc) {
-					return acc;
-				}
-				if (state.team === t && i < l.length -1) {
-					return l[i+1];
-				}
-				if (state.team === t && i === l.length -1) {
-					return l[0];
-				}
-				}, false),
-			round: state.round = 1,
-			scores: {
-				...state.scores,
-				[state.team]: state.scores[state.team] + amount,
-			},
-		})
-	}
-
-	if(count === 0) {
-		next(0);
-	}
-
-	return [state, count, next]
-}
-
-const App = () => {
-	const [state, count, next] = useAppState(teams);
+const App = ({ teams }) => {
+	const [state, questions, count, next] = useAppState(teams);
 
 	return (
 		<Box marginBottom={1} flexDirection="column">
 			<ScoreBoard scores={state.scores} />
 			<GameTimer timeRemaining={count} />
 			<ActiveRound round={state.round} team={state.team} />
+			{questions ? (
+				<Box flexDirection="column" marginBottom={1} justifyContent="center" alignItems="center">
+					<Box>{questions[state.round].question}</Box>
+					<Box>{questions[state.round].correct_answer}</Box>
+					{questions[state.round].incorrect_answers.map(i => (
+						<Box>{i}</Box>
+					))}
+				</Box>
+			) : null}
 		</Box>
 	);
 }

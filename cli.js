@@ -19,4 +19,8 @@ const cli = meow(`
 	  Hello, Jane
 `);
 
-render(React.createElement(ui, cli.flags));
+const teams = ['red', 'green'];
+
+const defaults = { teams };
+
+render(React.createElement(ui, {...defaults, ...cli.flags}));
