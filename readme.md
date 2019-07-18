@@ -1,5 +1,7 @@
 # ink-trivia
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/ndelangen/ink-trivia.svg)](https://greenkeeper.io/)
+
 - Clone repo
 - Install dependencies
 - run `cli.js`
