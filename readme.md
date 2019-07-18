@@ -11,3 +11,5 @@ This is a example of a terminal application written in react with ink.
 It's a very crude version of a trivia game where 2 players take turns answering a question.
 
 The faster you answer the more points you score.
+
+<img src="https://files-946a13ak2.now.sh/" alt="the app being played" />
