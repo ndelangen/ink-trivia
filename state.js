@@ -1,7 +1,7 @@
 const React = require('react');
 const { getQuestions } = require('./data');
 
-const useCount = (startCount = 60, gameSpeed = 100) => {
+const useCount = (startCount = 600, gameSpeed = 100) => {
 	const [count, setCount] = React.useState(startCount);
 	const done = count === 0;
 	
@@ -50,30 +50,36 @@ const useAppState = (teams) => {
   });
   
 	const next = (wasCorrect) => {
-		setCount(600);
-		setState({
-			team: teams.reduce((acc, t, i, l) => {
-				if (acc) {
-					return acc;
-				}
-				if (state.team === t && i < l.length -1) {
-					return l[i+1];
-				}
-				if (state.team === t && i === l.length -1) {
-					return l[0];
-				}
+		if(state.round < 10) {
+			setCount(600);
+			setState({
+				team: teams.reduce((acc, t, i, l) => {
+					if (acc) {
+						return acc;
+					}
+					if (state.team === t && i < l.length -1) {
+						return l[i+1];
+					}
+					if (state.team === t && i === l.length -1) {
+						return l[0];
+					}
 				}, false),
-			round: state.round + 1,
-			scores: wasCorrect ? {
-				...state.scores,
-				[state.team]: state.scores[state.team] + count,
-      } : state.scores,
-		})
+				round: state.round + 1,
+				scores: wasCorrect ? {
+					...state.scores,
+					[state.team]: state.scores[state.team] + count,
+				} : state.scores,
+			});
+		} else {
+			setCount(0);
+		}
 	}
 
-	if(count === 0) {
+	if(count === 0 && state.round < 10) {
 		next(false);
-  }
+	} else if (state.round === 10 && count !== 0) {
+		setCount(0);
+	}
   
 	return [state, questions, (questions ? count : 0), next]
 }

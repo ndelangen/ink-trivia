@@ -72,15 +72,20 @@ const Question = ({ next, question }) => {
 	return <SelectInput items={items} onSelect={handleSelect}/>
 };
 
+const Winner = ({ scores }) => {
+	const [winnerName, winnerScore] = Object.entries(scores).reduce(([topName, topScore], [name, score]) => {
+		return score > topScore ? [name, score] : [topName, topScore];
+	});
+
+	return (
+		<React.Fragment><Color {...{[winnerName]: true}}>{winnerName}</Color>, with {winnerScore} points!</React.Fragment>
+	);
+}
+
 const App = ({ teams }) => {
 	const [state, questions, count, next] = useAppState(teams);
 
-	return state.round === 9 ? (
-		<Box marginBottom={1} flexDirection="column">
-			<ScoreBoard scores={state.scores} />
-			<Text>CONGRATULATIONS</Text>
-		</Box>
-	) : (
+	return state.round < 10 ? (
 		<Box marginBottom={1} flexDirection="column">
 			<ScoreBoard scores={state.scores} />
 			<GameTimer timeRemaining={count} />
@@ -91,6 +96,16 @@ const App = ({ teams }) => {
 					<Question question={questions[state.round]} next={next} />
 				</Box>
 			) : null}
+		</Box>
+	) : (
+		<Box marginBottom={1} flexDirection="column">
+			<ScoreBoard scores={state.scores} />
+
+			<Box justifyContent="center" alignItems="center">
+				<Box flexGrow={1}/>
+				<Text>CONGRATULATIONS team: <Winner scores={state.scores} /></Text>
+				<Box flexGrow={1}/>
+			</Box>
 		</Box>
 	);
 }
